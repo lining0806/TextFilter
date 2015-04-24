@@ -62,9 +62,9 @@ class MongoDBIO:
         print "Collection:", posts.name
         return posts
 
-def DataFliter(host, port, name, password, database, collection, Limit_Number, lag, stopwords_set):
+def DataFliter(host, port, name, password, database, collection, Limit_Number, lag, stopwords_set, content_column, time_column):
     print u"......敏感词过滤系统by宁哥......\n" \
-      u"filter_status为1表示通过过滤，为0表示不通过过滤"
+      u"字段filter_status为1表示通过过滤，为0表示不通过过滤"
     posts = MongoDBIO(host, port, name, password, database, collection).Connection()
 
     #-------------------------------------------------------------------------------
@@ -76,14 +76,14 @@ def DataFliter(host, port, name, password, database, collection, Limit_Number, l
     starttime = datetime.datetime(2015, 1, 1)
     endtime = datetime.datetime.now()
     for post in posts.find({
-        "createdtime":{"$gte":starttime, "$lte":endtime},
-        "content":{"$exists":1},
+        time_column:{"$gte":starttime, "$lte":endtime},
+        content_column:{"$exists":1},
         "filter_status":{"$exists":0}
-    },).sort("createdtime", pymongo.DESCENDING).limit(Limit_Number):
+    },).sort(time_column, pymongo.DESCENDING).limit(Limit_Number):
         # print post
-        if post["content"] is not None:
+        if post[content_column] is not None:
             # print post["content"]
-            textseg_list = TextSeg(post["content"], lag)
+            textseg_list = TextSeg(post[content_column], lag)
             testseg_set = set(textseg_list)
             if stopwords_set & testseg_set:
                 id_dict["0"].append(post["_id"])
@@ -97,7 +97,7 @@ def DataFliter(host, port, name, password, database, collection, Limit_Number, l
         posts.update({"_id":id}, {"$set":{"filter_status":0}})
         print '{"_id":ObjectId("%s")} 0' % id
     for id in id_dict["1"]:
-        posts.update({"_id":id}, {"$set":{"filter_status":0}})
+        posts.update({"_id":id}, {"$set":{"filter_status":1}})
         print '{"_id":ObjectId("%s")} 1' % id
     #-------------------------------------------------------------------------------
 
@@ -128,6 +128,10 @@ if __name__ == '__main__':
             database = str(re.search(r'"(.*?)"', line).group(1))
         elif re.match(r'^collection', line):
             collection = str(re.search(r'"(.*?)"', line).group(1))
+        elif re.match(r'^content_column', line):
+            content_column = str(re.search(r'"(.*?)"', line).group(1))
+        elif re.match(r'^time_column', line):
+            time_column = str(re.search(r'"(.*?)"', line).group(1))
 
     stopwords_file = "./Config/stopwords_"+lag
     stopwords_list = MakeStopWordsList(stopwords_file)
@@ -135,5 +139,5 @@ if __name__ == '__main__':
 
 #-------------------------------------------------------------------------------
 
-    DataFliter(host, port, name, password, database, collection, Limit_Number, lag, stopwords_set)
+    DataFliter(host, port, name, password, database, collection, Limit_Number, lag, stopwords_set, content_column, time_column)
 

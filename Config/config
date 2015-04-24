@@ -5,6 +5,8 @@ name = ""
 password = ""
 database = "textfilter"
 collection = "cn_live_news_collects"
+content_column = "content"
+time_column = "createdtime"
 
 # 对应语言
 #lag = "eng"
