@@ -50,8 +50,8 @@ class MongoDBIO:
 
     # 连接数据库，db和posts为数据库和集合的游标
     def Connection(self):
-        # connection = pymongo.Connection() # 连接本地数据库
-        connection = pymongo.Connection(host=self.host, port=self.port)
+        # connection = pymongo.MongoClient() # 连接本地数据库
+        connection = pymongo.MongoClient(host=self.host, port=self.port)
         # db = connection.datas
         db = connection[self.database]
         if self.name or self.password:
@@ -60,11 +60,12 @@ class MongoDBIO:
         # posts = db.cn_live_news
         posts = db[self.collection]
         print "Collection:", posts.name
+        print posts.count()
         return posts
 
 def DataFliter(host, port, name, password, database, collection, Limit_Number, lag, stopwords_set, content_column, time_column):
-    print u"......敏感词过滤系统by宁哥......\n" \
-      u"字段filter_status为1表示通过过滤，为0表示不通过过滤"
+    print "......TextFilter System by LiNing......"
+    print "filter_status equals 1 means OK, otherwise 0"
     posts = MongoDBIO(host, port, name, password, database, collection).Connection()
 
     #-------------------------------------------------------------------------------
