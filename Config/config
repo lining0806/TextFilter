@@ -1,0 +1,14 @@
+# 服务器配置
+host = "localhost"
+port = 27017
+name = ""
+password = ""
+database = "textfilter"
+collection = "cn_live_news_collects"
+
+# 对应语言
+#lag = "eng"
+lag = "chs"
+
+# 数目
+Limit_Number = 100
