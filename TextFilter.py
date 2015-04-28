@@ -50,13 +50,21 @@ class MongoDBIO:
 
     # 连接数据库，db和posts为数据库和集合的游标
     def Connection(self):
-        # connection = pymongo.MongoClient() # 连接本地数据库
-        connection = pymongo.MongoClient(host=self.host, port=self.port)
-        # db = connection.datas
-        db = connection[self.database]
-        if self.name or self.password:
-            db.authenticate(name=self.name, password=self.password) # 验证用户名密码
-        print "Database:", db.name
+        # ##'''1.Connection'''
+        # # connection = pymongo.Connection() # 连接本地数据库
+        # connection = pymongo.Connection(host=self.host, port=self.port)
+        # # db = connection.datas
+        # db = connection[self.database]
+        # if self.name or self.password:
+        #     db.authenticate(name=self.name, password=self.password) # 验证用户名密码
+        # print "Database:", db.name
+        ##'''2.MongoClient'''
+        ## mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
+        uri = "mongodb://%s:%s@%s:%d/%s" % (self.name, self.password, self.host, self.port, self.database)
+        print uri
+        client = pymongo.MongoClient(uri)
+        db = client.get_default_database()
+
         # posts = db.cn_live_news
         posts = db[self.collection]
         print "Collection:", posts.name
