@@ -1,6 +1,7 @@
 # coding: utf-8
 __author__ = 'LiNing'
 
+import os
 import re
 import nltk
 import jieba
@@ -22,9 +23,12 @@ def MakeStopWordsList(stopwords_file):
     return stopwords_list
 
 def TextSeg(text, lag):
+    dict_path = "./Config/dict"
     if lag == "eng": # 英文情况
         word_list = nltk.word_tokenize(text)
     elif lag == "chs": # 中文情况
+        if os.path.exists(dict_path): # 中文情况
+            jieba.set_dictionary(dict_path) # jieba分词词典，可以修改
         #-------------------------------------------------------------------------------
         # jieba.enable_parallel(4) # 开启并行分词模式，参数为并行进程数，不支持windows
         word_cut = jieba.cut(text, cut_all=False) # 精确模式，返回的结构是一个可迭代的genertor
@@ -85,7 +89,7 @@ def DataFliter(host, port, name, password, database, collection, Limit_Number, l
     for post in posts.find({
         time_column:{"$gte":starttime, "$lte":endtime},
         content_column:{"$exists":1},
-        "filter_status":{"$exists":0}
+        "filter_status":{"$exists":0} # 此处可注释
     },).sort(time_column, pymongo.DESCENDING).limit(Limit_Number):
         # print post
         if post[content_column] is not None:
