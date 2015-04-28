@@ -53,7 +53,6 @@ class MongoDBIO:
         # ##'''1.Connection'''
         # # connection = pymongo.Connection() # 连接本地数据库
         # connection = pymongo.Connection(host=self.host, port=self.port)
-        # # db = connection.datas
         # db = connection[self.database]
         # if self.name or self.password:
         #     db.authenticate(name=self.name, password=self.password) # 验证用户名密码
@@ -65,7 +64,6 @@ class MongoDBIO:
         client = pymongo.MongoClient(uri)
         db = client.get_default_database()
 
-        # posts = db.cn_live_news
         posts = db[self.collection]
         print "Collection:", posts.name
         print posts.count()
