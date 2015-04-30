@@ -89,7 +89,7 @@ def DataFliter(host, port, name, password, database, collection, Limit_Number, l
     for post in posts.find({
         time_column:{"$gte":starttime, "$lte":endtime},
         content_column:{"$exists":1},
-        "filter_status":{"$exists":0} # 此处可注释
+        "filter_status":{"$nin":[0, 1]} # 此处可注释
     },).sort(time_column, pymongo.DESCENDING).limit(Limit_Number):
         # print post
         if post[content_column] is not None:
