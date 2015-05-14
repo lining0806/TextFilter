@@ -18,3 +18,4 @@ stopwords_chs和stopwords_eng为过滤词黑名单
 如果添加的过滤词无法正确被jieba分词，则同样方法将该需要过滤的词及词频加入到dict文件中，一行一个
 如stopwords_chs，加入了“阿尼玛”换行， 在dict中加入“阿尼玛 3”，3表示词频，词频越大分词越准确
 
+添加邮件通知系统，SendMailFlag = True # False一行可以修改是否接收邮件通知
