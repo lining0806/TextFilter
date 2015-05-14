@@ -73,7 +73,7 @@ class MongoDBIO:
         print posts.count()
         return posts
 
-def DataFliter(host, port, name, password, database, collection, Limit_Number, lag, stopwords_set, content_column, time_column):
+def DataFliter(host, port, name, password, database, collection, Limit_Number, lag, stopwords_set, content_column, time_column, SendMailConfig=[]):
     print "......TextFilter System by LiNing......"
     print "filter_status equals 1 means OK, otherwise 0"
     posts = MongoDBIO(host, port, name, password, database, collection).Connection()
@@ -89,7 +89,7 @@ def DataFliter(host, port, name, password, database, collection, Limit_Number, l
     for post in posts.find({
         time_column:{"$gte":starttime, "$lte":endtime},
         content_column:{"$exists":1},
-        "filter_status":{"$nin":[0, 1]} # 此处可注释
+        # "filter_status":{"$nin":[0, 1]} # 此处可注释
     },).sort(time_column, pymongo.DESCENDING).limit(Limit_Number):
         # print post
         if post[content_column] is not None:
@@ -97,16 +97,33 @@ def DataFliter(host, port, name, password, database, collection, Limit_Number, l
             textseg_list = TextSeg(post[content_column], lag)
             testseg_set = set(textseg_list)
             if stopwords_set & testseg_set:
-                id_dict["0"].append(post["_id"])
+                # id_dict["0"].append(post["_id"])
+                id_dict["0"].append((post["_id"], post[content_column]))
+
             else:
                 id_dict["1"].append(post["_id"])
         else:
             print '{"_id":ObjectId("%s")} None' % post["_id"]
 
     #### 更新操作
-    for id in id_dict["0"]:
-        posts.update({"_id":id}, {"$set":{"filter_status":0}})
-        print '{"_id":ObjectId("%s")} 0' % id
+    for id_content in id_dict["0"]:
+        posts.update({"_id":id_content[0]}, {"$set":{"filter_status":0}})
+        print '{"_id":ObjectId("%s")} 0' % id_content[0]
+        print '%s' % id_content[1]
+        SendMailFlag = True # False
+        if SendMailFlag and len(SendMailConfig) == 4:
+            from SendMail import send_mail
+            #-------------------------------------------------------------------------------
+            # smtp_server = 'smtp.163.com'
+            # from_addr = 'xxxx@163.com'
+            # passwd = 'xxxx'
+            # to_addr = ['xxxx@163.com']
+            smtp_server, from_addr, passwd, to_addr = SendMailConfig
+            #-------------------------------------------------------------------------------
+            subject = 'Waring...'
+            text = '{"_id":ObjectId("%s")} 0\n' % id_content[0] + '%s\n' % id_content[1]
+            files = []
+            send_mail(smtp_server, from_addr, passwd, to_addr, subject, text, files)
     for id in id_dict["1"]:
         posts.update({"_id":id}, {"$set":{"filter_status":1}})
         print '{"_id":ObjectId("%s")} 1' % id
@@ -143,12 +160,20 @@ if __name__ == '__main__':
             content_column = str(re.search(r'"(.*?)"', line).group(1))
         elif re.match(r'^time_column', line):
             time_column = str(re.search(r'"(.*?)"', line).group(1))
+        elif re.match(r'^smtp_server', line):
+            smtp_server = str(re.search(r'"(.*?)"', line).group(1))
+        elif re.match(r'^from_addr', line):
+            from_addr = str(re.search(r'"(.*?)"', line).group(1))
+        elif re.match(r'^passwd', line):
+            passwd = str(re.search(r'"(.*?)"', line).group(1))
+        elif re.match(r'^to_addr', line):
+            to_addr = re.split(r',', re.search(r'\[(.*?)\]', line).group(1).replace(' ', '').replace('"', ''))
+            # print to_addr
 
     stopwords_file = "./Config/stopwords_"+lag
     stopwords_list = MakeStopWordsList(stopwords_file)
     stopwords_set = set(stopwords_list)
 
 #-------------------------------------------------------------------------------
-
-    DataFliter(host, port, name, password, database, collection, Limit_Number, lag, stopwords_set, content_column, time_column)
-
+    SendMailConfig = (smtp_server, from_addr, passwd, to_addr)
+    DataFliter(host, port, name, password, database, collection, Limit_Number, lag, stopwords_set, content_column, time_column, SendMailConfig)

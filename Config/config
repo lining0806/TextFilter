@@ -14,3 +14,10 @@ lag = "chs"
 
 # 数目
 Limit_Number = 100
+
+# 发送邮件
+smtp_server = "smtp.163.com"
+from_addr = "xxxx@163.com"
+passwd = "xxxx"
+to_addr = ["xxxx@163.com"]
+# to_addr = ["xxxx@163.com", "xxxx@163.com"]
