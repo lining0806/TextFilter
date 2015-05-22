@@ -110,9 +110,10 @@ def DataFliter(host, port, name, password, database, collection, Limit_Number, l
     text = ''
     for id_content in id_dict["0"]:
         posts.update({"_id":id_content[0]}, {"$set":{"filter_status":0}})
-        print '{"_id":ObjectId("%s")} 0' % id_content[0]
-        print '%s' % id_content[1]
-        text = text.join('{"_id":ObjectId("%s")} 0\n' % id_content[0] + '%s\n\n' % id_content[1])
+        id_content_string = '{"_id":ObjectId("%s")} 0\n%s\n' % (id_content[0], id_content[1])
+        print id_content_string,
+        text += id_content_string
+        # text = text.join(id_content_string) # 错误！join是循环用text连接id_content_string的字符
     if len(SendMailConfig) == 5:
         smtp_server, from_addr, passwd, to_addr, SendMailFlag = SendMailConfig
         #-------------------------------------------------------------------------------
