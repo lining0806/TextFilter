@@ -9,6 +9,7 @@ import jieba.analyse
 import pymongo
 import datetime
 
+from SendMail import send_mail
 
 def MakeStopWordsList(stopwords_file):
     fp = open(stopwords_file, 'r') # stopwords_file最后有一个空行，可以添加或删除单词
@@ -106,22 +107,22 @@ def DataFliter(host, port, name, password, database, collection, Limit_Number, l
             print '{"_id":ObjectId("%s")} None' % post["_id"]
 
     #### 更新操作
+    text = ''
     for id_content in id_dict["0"]:
         posts.update({"_id":id_content[0]}, {"$set":{"filter_status":0}})
         print '{"_id":ObjectId("%s")} 0' % id_content[0]
         print '%s' % id_content[1]
-        SendMailFlag = True # False
-        if SendMailFlag and len(SendMailConfig) == 4:
-            from SendMail import send_mail
-            #-------------------------------------------------------------------------------
-            # smtp_server = 'smtp.163.com'
-            # from_addr = 'xxxx@163.com'
-            # passwd = 'xxxx'
-            # to_addr = ['xxxx@163.com']
-            smtp_server, from_addr, passwd, to_addr = SendMailConfig
+        text = text.join('{"_id":ObjectId("%s")} 0\n' % id_content[0] + '%s\n\n' % id_content[1])
+    if len(SendMailConfig) == 5:
+        smtp_server, from_addr, passwd, to_addr, SendMailFlag = SendMailConfig
+        #-------------------------------------------------------------------------------
+        # smtp_server = 'smtp.163.com'
+        # from_addr = 'xxxx@163.com'
+        # passwd = 'xxxx'
+        # to_addr = ['xxxx@163.com']
+        if SendMailFlag == 'Yes' and text != '':
             #-------------------------------------------------------------------------------
             subject = 'Waring...'
-            text = '{"_id":ObjectId("%s")} 0\n' % id_content[0] + '%s\n' % id_content[1]
             files = []
             send_mail(smtp_server, from_addr, passwd, to_addr, subject, text, files)
     for id in id_dict["1"]:
@@ -169,11 +170,13 @@ if __name__ == '__main__':
         elif re.match(r'^to_addr', line):
             to_addr = re.split(r',', re.search(r'\[(.*?)\]', line).group(1).replace(' ', '').replace('"', ''))
             # print to_addr
+        elif re.match(r'^SendMailFlag', line):
+            SendMailFlag = str(re.search(r'"(.*?)"', line).group(1))
 
     stopwords_file = "./Config/stopwords_"+lag
     stopwords_list = MakeStopWordsList(stopwords_file)
     stopwords_set = set(stopwords_list)
 
 #-------------------------------------------------------------------------------
-    SendMailConfig = (smtp_server, from_addr, passwd, to_addr)
+    SendMailConfig = (smtp_server, from_addr, passwd, to_addr, SendMailFlag)
     DataFliter(host, port, name, password, database, collection, Limit_Number, lag, stopwords_set, content_column, time_column, SendMailConfig)

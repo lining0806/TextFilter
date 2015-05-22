@@ -21,3 +21,4 @@ from_addr = "xxxx@163.com"
 passwd = "xxxx"
 to_addr = ["xxxx@163.com"]
 # to_addr = ["xxxx@163.com", "xxxx@163.com"]
+SendMailFlag = "Yes" # "No"
