@@ -1,8 +1,10 @@
-**Ubuntu Linux下环境搭建：  **  
-    sudo apt-get install python-pip
-    pip install nltk
-    pip install jieba
-    pip install pymongo
+**Ubuntu Linux下环境搭建：**
+ 
+    sudo apt-get install python-pip  
+    pip install nltk  
+    pip install jieba  
+    pip install pymongo  
+
 
 **敏感词过滤系统by宁哥：**  
 
