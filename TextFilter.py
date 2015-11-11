@@ -8,8 +8,15 @@ import jieba
 import jieba.analyse
 import pymongo
 import datetime
+# dict_path = "./Config/dict"
+# if os.path.exists(dict_path):
+#     jieba.set_dictionary(dict_path) # 主词典
+userdict_path = "./Config/user_dict"
+if os.path.exists(userdict_path):
+    jieba.load_userdict(userdict_path) # 用户词典
 
 from SendMail import send_mail
+
 
 def MakeStopWordsList(stopwords_file):
     fp = open(stopwords_file, 'r') # stopwords_file最后有一个空行，可以添加或删除单词
@@ -24,12 +31,9 @@ def MakeStopWordsList(stopwords_file):
     return stopwords_list
 
 def TextSeg(text, lag):
-    dict_path = "./Config/dict"
     if lag == "eng": # 英文情况
         word_list = nltk.word_tokenize(text)
     elif lag == "chs": # 中文情况
-        if os.path.exists(dict_path): # 中文情况
-            jieba.set_dictionary(dict_path) # jieba分词词典，可以修改
         #-------------------------------------------------------------------------------
         # jieba.enable_parallel(4) # 开启并行分词模式，参数为并行进程数，不支持windows
         word_cut = jieba.cut(text, cut_all=False) # 精确模式，返回的结构是一个可迭代的genertor
