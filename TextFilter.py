@@ -105,7 +105,7 @@ def DataFliter(host, port, name, password, database, collection, Limit_Number, l
     },).sort(time_column, pymongo.DESCENDING).limit(Limit_Number):
         # print post
         if post[content_column] is not None:
-            # print post["content"]
+            # print post[content_column]
             textseg_list = TextSeg(post[content_column], lag)
             testseg_set = set(textseg_list)
             if stopwords_set & testseg_set:
