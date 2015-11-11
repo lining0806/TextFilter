@@ -1,0 +1,2 @@
+python TextFilter.py
+pause
