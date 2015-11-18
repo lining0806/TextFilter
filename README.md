@@ -1,4 +1,8 @@
-### 敏感词过滤系统by宁哥：
+# 敏感词过滤系统
+
+### **更多详见[TextMining](https://github.com/lining0806/TextMining)**
+
+***
 
 **Ubuntu Linux下环境搭建：**
  
