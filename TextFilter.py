@@ -82,7 +82,7 @@ class MongoDBIO(object):
         print db.collection_names() # 查询所有集合
         posts = db[self.collection]
         print "Collection:", posts.name
-        print posts.count()
+        print "Count:", posts.count()
 
         return posts
 
